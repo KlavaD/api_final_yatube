@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import UniqueConstraint, CheckConstraint
 
 User = get_user_model()
 
@@ -56,6 +57,16 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'Подписчик'
         verbose_name_plural = 'Подписчики'
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'following'],
+                name='double_follow'
+            ),
+            CheckConstraint(
+                name='self_follow',
+                check=~models.Q(user=models.F('following')),
+            ),
+        ]
 
     def __str__(self) -> str:
         return str(f'{self.user} подписан на {self.following}')
