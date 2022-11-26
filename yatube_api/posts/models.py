@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import UniqueConstraint, CheckConstraint
 
@@ -25,6 +26,9 @@ class Post(models.Model):
         Group, on_delete=models.SET_NULL,
         related_name='posts', blank=True, null=True
     )
+
+    class Meta:
+        ordering = ('pub_date',)
 
     def __str__(self):
         return self.text
@@ -67,6 +71,10 @@ class Follow(models.Model):
                 check=~models.Q(user=models.F('following')),
             ),
         ]
+
+    def clean(self):
+        if self.user == self.following:
+            raise ValidationError('you cannot follow yourself')
 
     def __str__(self) -> str:
         return str(f'{self.user} подписан на {self.following}')
