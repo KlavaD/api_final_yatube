@@ -1,8 +1,20 @@
+import datetime as dt
+
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
 from posts.models import Comment, Post, Group, Follow, User
+
+
+class SelfValidator(object):
+    requires_context = True
+
+    def __call__(self, value, serializer_field):
+        if value == serializer_field.context['request'].user:
+            raise serializers.ValidationError(
+                'You cannot follow yourself!')
+        return value
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -17,6 +29,12 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Post
+
+    def validate_year(self, value):
+        year_now = dt.date.today().year
+        if not value < year_now:
+            raise serializers.ValidationError('Год еще не наступил!')
+        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -38,7 +56,8 @@ class FollowSerializer(serializers.ModelSerializer):
 
     following = serializers.SlugRelatedField(
         slug_field='username',
-        queryset=User.objects.all())
+        queryset=User.objects.all(),
+        validators=[SelfValidator()])
 
     class Meta:
         fields = '__all__'
@@ -50,9 +69,3 @@ class FollowSerializer(serializers.ModelSerializer):
                 message='you are already follow this author!'
             )
         ]
-
-    def validate_following(self, data):
-        if data == self.context['request'].user:
-            raise serializers.ValidationError(
-                'You cannot follow yourself!')
-        return data
