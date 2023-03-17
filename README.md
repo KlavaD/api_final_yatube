@@ -55,10 +55,12 @@ python3 manage.py runserver
 
 Создание публикации:
 >**POST** http://127.0.0.1:8000/api/v1/posts/
-`{
+```
+{
   "text": "string",
   ...
-}`
+}
+```
 
 Получение списка групп:
 >**GET** http://127.0.0.1:8000/api/v1/groups/
@@ -68,18 +70,22 @@ python3 manage.py runserver
 
 Создание комментариев к публикации:
 >**POST** http://127.0.0.1:8000/api/v1/posts/{post_id}/comments/
-`{
+```
+{
   "text": "string"
-}`
+}
+```
 
 Посмотреть всех подписчиков пользователя:
 >**GET** http://127.0.0.1:8000/api/v1/follow/
 
 Подписаться на автора:
 >**POST** http://127.0.0.1:8000/api/v1/follow/
-`{
+```
+{
   "following": "string"(username)
-}`
+}
+```
 
 Документация для API Yatube:
 > http://127.0.0.1:8000/redoc/
